@@ -6,7 +6,8 @@
 void assembler(char *inputFilename, char *outputFilename);
 void instruction_LUT(char *line);
 //Get the file name by command line 
-int main(int argc, char *argv[]) {
+int main(int argc ,char *argv[]) {
+    (void) argc; // can not delete the int beacuse of the main declration and there is no use of it , so voided 
     char *filename = argv[1];
     // Set the output filename
     char outputFilename[105];//slightly larger than input 
@@ -82,7 +83,7 @@ void instruction_LUT(char *line) {
                 immediate = atoi(line + baseLength);
 
                 // 
-                char binaryCode[20];
+                char binaryCode[25]; //Add more for the binary to avoid truncation warning
                 snprintf(binaryCode, sizeof(binaryCode), "%s%d", instructions[i][1], immediate);
 
                 // Replace the line with the final binary code
