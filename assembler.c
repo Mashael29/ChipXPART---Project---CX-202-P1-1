@@ -43,7 +43,9 @@ void assembler(char *inputFilename, char *outputFilename) {
 
     // Read instruction from the file
     while (fgets(line, sizeof(line), inputFile)) {
-        line[strcspn(line, "\n")] = '\0';
+        // Deleting spacing and newline 
+	line[strcspn(line,"\n")] = '\0';
+	line[strcspn(line, " ")] = '\0';
 
         // instruction to binary using the LUT
         instruction_LUT(line);
@@ -60,8 +62,9 @@ void assembler(char *inputFilename, char *outputFilename) {
 
 void instruction_LUT(char *line) {
     // Look UP Table for instructions and their binary codes
-    int numofinstruction = 9;
-    char instructions[9][2][20] = {
+	int numofinstruction = 9;
+	int immediate;
+	char instructions[9][2][20] = {
         {"RA=RA+RB", "00000000"},
         {"RB=RA+RB", "00010000"},
         {"RA=RA-RB", "00000100"},
@@ -72,13 +75,31 @@ void instruction_LUT(char *line) {
         {"JC=imm",   "01110000"},
         {"J=imm",    "10110010"}
     };
-
+		    
     // Loop through the LUT to find a match 
-    for (int i = 0; i < numofinstruction; i++) {
-        if (strcmp(line, instructions[i][0]) == 0) {  // lookup and match
-            strcpy(line, instructions[i][1]);  // Replace with binary code
-            return;
+	for (int i = 0; i < numofinstruction; i++){
+		char *search =strstr(instructions[i][0],"imm");//
+                if (search != NULL){
+		 int baseLength = strlen(instructions[i][0]) - strlen("imm");
+                 if (strncmp(line, instructions[i][0], baseLength) == 0) {
+                // 
+                immediate = atoi(line + baseLength);
+
+                // 
+                char binaryCode[20];
+                snprintf(binaryCode, sizeof(binaryCode), "%s%d", instructions[i][1], immediate);
+
+                // Replace the line with the final binary code
+                strcpy(line, binaryCode);
+                return;
+            }}
+		
+		else if (strcmp(line, instructions[i][0]) == 0) {  // lookup and match
+            	strcpy(line, instructions[i][1]);  // Replace with binary code
+            	return;
         }
+		
+		
     }
 
     // Print an error if not found
