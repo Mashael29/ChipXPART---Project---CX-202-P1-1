@@ -4,9 +4,9 @@ CFLAGS = -Wall
 
 # Targets and sources
 ASSEMBLER = assembler
-SIMULATOR = simulator
+SIMULATOR = Simulator
 ASSEMBLER_SRC = assembler.c
-SIMULATOR_SRC = simulator.c
+SIMULATOR_SRC = Simulator.c
 
 # Default target
 all: $(ASSEMBLER) $(SIMULATOR)
