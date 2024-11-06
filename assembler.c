@@ -5,15 +5,11 @@
 //used functions
 void assembler(char *inputFilename, char *outputFilename);
 void instruction_LUT(char *line);
-//
-int main() {
-    char filename[400];
-    //prompt user to enter file name 
-    printf("Enter input filename (e.g., program.asm): ");
-    scanf("%s", filename);
-
+//Get the file name by command line 
+int main(int argc, char *argv[]) {
+    char *filename = argv[1];
     // Set the output filename
-    char outputFilename[405];//slightly larger than input 
+    char outputFilename[105];//slightly larger than input 
     snprintf(outputFilename, sizeof(outputFilename), "%s.bin", filename);
 
     // Assemble the file
