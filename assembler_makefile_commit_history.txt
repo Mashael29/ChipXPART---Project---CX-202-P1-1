@@ -1,0 +1,54 @@
+commit 0989978917e167325e053e3b8dc6e9ba8a4242bd (HEAD -> main, origin/main)
+Author: RahafQahtani <irahafque@gmail.com>
+Date:   Sat Nov 9 16:30:39 2024 +0300
+
+    Modifing input file using command line
+
+commit e988b2d85b9714a34574756a61f254b42bd914be
+Author: RahafQahtani <irahafque@gmail.com>
+Date:   Sat Nov 9 15:41:27 2024 +0300
+
+    Modified commit, simulator name
+
+commit 883fc46240297c46ad7d2bdd79db33f8c40505ff
+Author: RahafQahtani <irahafque@gmail.com>
+Date:   Wed Nov 6 18:33:27 2024 +0300
+
+    Modified commit
+
+commit 1cfd8e10895e5497ee93fc8e66fa4d828a705833
+Author: RahafQahtani <irahafque@gmail.com>
+Date:   Wed Nov 6 18:21:33 2024 +0300
+
+    first commit
+
+commit f897bab7def60b24fb4cfc6a1a98dca7a748a249
+Author: RahafQahtani <irahafque@gmail.com>
+Date:   Wed Nov 6 15:35:25 2024 +0300
+
+    Modifed commit, Avoiding warnings
+
+commit 25ac760300afa94d0298c239c6cee8abb17c9b5b
+Author: RahafQahtani <irahafque@gmail.com>
+Date:   Wed Nov 6 15:18:49 2024 +0300
+
+    Modifed commit, changing file input to a command
+
+commit 2105ab67f28a7847c396d0c151657f11158f8f12
+Author: RahafQahtani <irahafque@gmail.com>
+Date:   Wed Nov 6 13:18:41 2024 +0300
+
+    Modified commit, - was not correct
+
+commit 8307e22d8991107d9ec1b5f48a81da57dfe4691d
+Author: RahafQahtani <irahafque@gmail.com>
+Date:   Wed Nov 6 12:43:32 2024 +0300
+
+    Modified commit , added immediate logic
+
+commit a18c61bba3d5cdd169ec035ce94c0a10c9c77a58
+Author: RahafQahtani <irahafque@gmail.com>
+Date:   Tue Nov 5 18:33:56 2024 +0300
+
+    first commit
+
