@@ -1,12 +1,12 @@
 #include<stdio.h>
 #include<stdlib.h>
-#define Max_Instructions 16 // I choice random value
+#define Max_Instructions 8 
 
 char RA=0;
 char RB=0;
 char R0=0; 
-		    
 char Program_Counter=0;
+char mode;
 
 void load_program(const char *InputFile, char program[], int *program_size)
 {
@@ -20,15 +20,13 @@ void load_program(const char *InputFile, char program[], int *program_size)
 
 	// fread(destination ,size of each element , number of elements , file pointer);
 	// read data from the file (MyFile) into program array 
-	*program_size = fread(program,sizeof( char),Max_Instruction,MyFile);
-	fclose(file);
+	*program_size = fread(program,sizeof( char),Max_Instructions,MyFile);
+	fclose(MyFile);
 }
 
 int ALU(int *Sum, int *carry,int operation_S)  //operation_S : to choice between Add ,Sub
 {
-	char RA;
-	char RB;
-	if(operation_S == 0)
+	if(operation_S == 0) //Addition 
 	{
 		*Sum = (RA + RB);
 		if(*Sum>15)
@@ -40,7 +38,7 @@ int ALU(int *Sum, int *carry,int operation_S)  //operation_S : to choice between
 			*carry=0;
 		}
 	}
-	else if(operation_S == 1)
+	else if(operation_S == 1) //Subtraction
 	{
 		*Sum = (RA - RB);
 		if(*Sum>15)
@@ -52,10 +50,10 @@ int ALU(int *Sum, int *carry,int operation_S)  //operation_S : to choice between
 			*carry=0;
 		}
 	}
-	return 0;
+	return *Sum;
 }
 	
-void instraction_decode(char instruction,char *J ,char *C ,char *D1 , char *D0, char *Sreg,char *S)
+char instraction_decode(char instruction,char *J ,char *C ,char *D1 , char *D0, char *Sreg,char *S)
 {
 	if(instruction & 0x80 )
 	{*J=1;}
@@ -83,7 +81,7 @@ void instraction_decode(char instruction,char *J ,char *C ,char *D1 , char *D0, 
         {*S=0;}
 }
 
-void decode(char D0 , char D1 , char *enA, char *enB ,char *En0)
+char decode(char D0 , char D1 , char *enA, char *enB ,char *En0)
 {
 	if(D0==0 && D1==0)
 	{
@@ -111,7 +109,7 @@ void decode(char D0 , char D1 , char *enA, char *enB ,char *En0)
 	}
 }
 
-void MUX(char Sum,char imm,char Sreg)
+char MUX(int Sum,char imm,char Sreg)
 {
 
 	if(Sreg==1) // if Sreg =1 , Select immediate value
@@ -124,13 +122,16 @@ void MUX(char Sum,char imm,char Sreg)
 	}
 }
 
-void execute_program(char *program, int program_size) 
+int execute_program(char *program, int program_size) 
 {
 	char J,C,D1,D0,Sreg,S;
 	char enA,enB,En0;
 	char imm=0;
-	char carry=0;
-	char sum=0;
+	int carry=0;
+	int Sum=0;
+	int step=0;
+
+printf("Starting Simulator in %s mode...\n", (mode == 'S') ? "step-by-step" : "continuous");
 
     while (Program_Counter < program_size) {
         char instruction = program[Program_Counter++];  // Fetch instruction
@@ -139,16 +140,16 @@ void execute_program(char *program, int program_size)
         decode(D0, D1, &enA, &enB, &En0);  // Decode instruction
 					  //
         int operation_S=S; //Use S as operation selector for ALU
-        ALU(&Sum, &carry,RA,RB,operation_S);
+        ALU(&Sum, &carry,operation_S);
 	char Mux_output=MUX(Sum,imm,Sreg);
 
 	//these two condation depend on the MUX function 
-	if(enA == 1)
+	if(enA)
 	{
 		RA=Mux_output;
 		printf("RA update to: %d\n",RA);
 	}
-	if(enB==1)
+	if(enB)
 	{
 		RB=Mux_output;
 		printf("RB update to: %d\n",RB);
@@ -157,64 +158,79 @@ void execute_program(char *program, int program_size)
 
 
         // Execute based on the decode results and instruction fields
-        if (enA && enB=0 && En0=0) {  // RA = RA + RB
+        if (enA && !enB && !En0) {  // RA = RA + RB
             RA = ALU(&Sum,&carry,0);
             printf("Instruction %d: RA=RA+RB\n", Program_Counter);
-        } else if (enA=0 && enB && En0=0) {  // RB = RA + RB
+        } else if (!enA && enB && !En0) {  // RB = RA + RB
             RB = ALU(&Sum,&carry,0);
             printf("Instruction %d: RB=RA+RB\n", Program_Counter);
-        } else if (enA && enB=0 && En0) {  // RA = RA - RB
+        } else if (enA && !enB && En0) {  // RA = RA - RB
             RA = ALU(&Sum,&carry,1);
             printf("Instruction %d: RA=RA-RB\n", Program_Counter);
-        } else if (enA=0 && enB && En0) {  // RB = RA - RB
+        } else if (!enA && enB && En0) {  // RB = RA - RB
             RB = ALU(&Sum,&carry,1);
             printf("Instruction %d: RB=RA-RB\n", Program_Counter);
-        } else if (enA=0 && enB=0 && En0) {  // RO = RA
-            RO = RA;
-            printf("Instruction %d: RO=RA -> RO=%u\n", Program_Counter, RO);
-   
-        if (RO == RA) {  // Only display RO when RO=RA
-            printf("Execution (Register RO output): RO=%u\n", RO);
+        } else if (!enA && !enB && En0) {  // RO = RA
+            R0 = RA;
+            printf("Instruction %d: RO=RA -> RO=%u\n", Program_Counter, R0);
 
-	if(J==0 && C==0 && D1==0 && D0==0 && Sreg==1)
-	{
-		RA=S;
-		printf("instruction %d: RA=%u\n",Program_Counter,RA);
 	}
-	if(J==0 && C==0 && D1==0 && D0==1 && Sreg==1)
-        {
-                RB=S;
-                printf("instruction %d: RB=%u\n",Program_Counter-1,RB);
+
+	 // Jump condition (if J is set)
+        if (J && (C == 0 || carry)) {
+            Program_Counter = instruction & 0x0F;  // Example jump to specific instruction
+            printf("Jumping to instruction %d ", Program_Counter);
         }
-//	if(J==0 && C==1 && D1==1 && D0==1 && Sreg==0)
-//        {
-//               printf("instruction %d: JC=%u\n",Program_Counter,S);
-//		if(C) Program_Counter=S;
-//        }
-//	if(J==1 && C==0 && D1==1 && D0==1 && Sreg==0)
-//        {
-//		RA=S;
-//                printf("instruction %d: J=%u\n",Program_Counter-1,S);
-//        }
+	else
+	{
+		Program_Counter++;
+	}
+	  // Jump condition (if J is set)
+    //    if (J==0 && (C == 0 || carry)) {
+        //    Program_Counter = instruction & 0x0F;  // Example jump to specific instruction
+      //      printf("Jumping to start %d ", Program_Counter+1);
+    //    }
 
 
+        printf("\n");
+
+        // If step-by-step mode, pause until user presses Enter
+        if (mode == 'S') {
+            printf("[Press Enter to continue]");
+           while (getchar() != '\n'); // Wait for Enter
         }
+        step++;
     }
-}
 
-int main() {
-     char J,C,D1,D0,Sreg,S;
-     char enA,enB,En0;
-
-     const char *MyFile = InputFile;  
-     char program[Max_Instructions];
-
-     decode(D0, D1, &enA, &enB, &En0);  // Decode instruction
-     ALU(Sum, carry);
-     instraction_decode(instruction, &J , &C , &D1 , &D0, &Sreg, &S);
-
-    //Run the loaded program
-    execute_program(&program, &program_size);
     printf("Execution completed.\n");
+   
+        
+    }
+
+int main() 
+{
+    const char *InputFile = "fibonacci.bin";  // Specify the binary file name
+    char program[Max_Instructions];
+    int program_size;
+
+    printf("Select mode (R - continuous, S - step-by-step): ");
+    scanf(" %c", &mode);
+    getchar();  // To consume the newline after mode input
+
+    printf("Loading binary file: %s\n", InputFile);
+    load_program(InputFile, program, &program_size);
+
+    // Execute the loaded program
+    execute_program(program, program_size);
+
+  //  if(J==1 || C && *carry)
+   // {
+//	    program_counter=1
+  //  }
+   // else 
+    //{
+//	    program_counter=program_counter+1;
+  //  }
+
     return 0;
 }
