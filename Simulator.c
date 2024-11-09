@@ -21,6 +21,9 @@ void load_program(const char *InputFile, char program[], int *program_size)
 	// fread(destination ,size of each element , number of elements , file pointer);
 	// read data from the file (MyFile) into program array 
 	*program_size = fread(program,sizeof( char),Max_Instructions,MyFile);
+
+	printf("Program loaded with size %d\n",*program_size); // For debugging
+
 	fclose(MyFile);
 }
 
@@ -138,7 +141,6 @@ printf("Starting Simulator in %s mode...\n", (mode == 'S') ? "step-by-step" : "c
 
         instraction_decode(instruction, &J , &C , &D1 , &D0, &Sreg, &S);
         decode(D0, D1, &enA, &enB, &En0);  // Decode instruction
-					  //
         int operation_S=S; //Use S as operation selector for ALU
         ALU(&Sum, &carry,operation_S);
 	char Mux_output=MUX(Sum,imm,Sreg);
@@ -147,34 +149,29 @@ printf("Starting Simulator in %s mode...\n", (mode == 'S') ? "step-by-step" : "c
 	if(enA)
 	{
 		RA=Mux_output;
-		printf("RA update to: %d\n",RA);
 	}
 	if(enB)
 	{
 		RB=Mux_output;
-		printf("RB update to: %d\n",RB);
 	}
 
-
-
-        // Execute based on the decode results and instruction fields
-        if (enA && !enB && !En0) {  // RA = RA + RB
-            RA = ALU(&Sum,&carry,0);
-            printf("Instruction %d: RA=RA+RB\n", Program_Counter);
-        } else if (!enA && enB && !En0) {  // RB = RA + RB
-            RB = ALU(&Sum,&carry,0);
-            printf("Instruction %d: RB=RA+RB\n", Program_Counter);
-        } else if (enA && !enB && En0) {  // RA = RA - RB
-            RA = ALU(&Sum,&carry,1);
-            printf("Instruction %d: RA=RA-RB\n", Program_Counter);
-        } else if (!enA && enB && En0) {  // RB = RA - RB
-            RB = ALU(&Sum,&carry,1);
-            printf("Instruction %d: RB=RA-RB\n", Program_Counter);
-        } else if (!enA && !enB && En0) {  // RO = RA
+	 if (enA && !enB && !En0) { // RA = RA + RB
+            RA = ALU(&Sum, &carry, 0);
+            printf("Instruction %d: RA=RA+RB -> RA=%d\n", Program_Counter, RA);
+        } else if (!enA && enB && !En0) { // RB = RA + RB
+            RB = ALU(&Sum, &carry, 0);
+            printf("Instruction %d: RB=RA+RB -> RB=%d\n", Program_Counter, RB);
+        } else if (enA && !enB && En0) { // RA = RA - RB
+            RA = ALU(&Sum, &carry, 1);
+            printf("Instruction %d: RA=RA-RB -> RA=%d\n", Program_Counter, RA);
+        } else if (!enA && enB && En0) { // RB = RA - RB
+            RB = ALU(&Sum, &carry, 1);
+            printf("Instruction %d: RB=RA-RB -> RB=%d\n", Program_Counter, RB);
+        } else if (!enA && !enB && En0) { // RO = RA
             R0 = RA;
-            printf("Instruction %d: RO=RA -> RO=%u\n", Program_Counter, R0);
+            printf("Instruction %d: RO=RA -> RO=%d\n", Program_Counter, R0);
+        }
 
-	}
 
 	 // Jump condition (if J is set)
         if (J && (C == 0 || carry)) {
@@ -191,8 +188,7 @@ printf("Starting Simulator in %s mode...\n", (mode == 'S') ? "step-by-step" : "c
       //      printf("Jumping to start %d ", Program_Counter+1);
     //    }
 
-
-        printf("\n");
+  //      printf("\n");
 
         // If step-by-step mode, pause until user presses Enter
         if (mode == 'S') {
@@ -207,8 +203,20 @@ printf("Starting Simulator in %s mode...\n", (mode == 'S') ? "step-by-step" : "c
         
     }
 
+//void handle_jump(char J, char C, int carry) {
+//    if (J && (C == 0 || carry)) {
+ //       Program_Counter = Program_Counter & 0x0F;  // Jump to specific instruction
+//        printf("Jumping to instruction %d\n", Program_Counter);
+ //   } else {
+//        Program_Counter++;
+//    }
+//}
+
+
 int main() 
 {
+//	int RA=5;
+//	int RB=3;
     const char *InputFile = "fibonacci.bin";  // Specify the binary file name
     char program[Max_Instructions];
     int program_size;

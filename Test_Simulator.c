@@ -110,11 +110,9 @@ void handle_jump(char J, char C, int carry) {
 }
 
 int main() {
-	RA=12;
-	RB=12;
+//	RA=12;
+//	RB=12;
 	Program_Counter=0;
-//	char J;
-//	char C=0;
 
 	int carry=0;
 	int Sum;
